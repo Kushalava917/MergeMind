@@ -8,6 +8,7 @@
       name="description"
       content="MergeMind AI reads what each branch was trying to do, merges them without dropping either side, and shows its work before you commit."
     />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
@@ -1231,22 +1232,44 @@
         observer.observe(document.getElementById("demo"));
       }
 
-      /* ---------- Waitlist form (UI only — no backend wired up yet) ---------- */
+      /* ---------- Waitlist form ---------- */
       function initWaitlistForm() {
         const form = document.getElementById("waitlistForm");
         const note = document.getElementById("waitlistNote");
         if (!form) return;
 
-        form.addEventListener("submit", (e) => {
-          e.preventDefault();
-          const email = form.querySelector('input[type="email"]').value.trim();
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const input = form.querySelector('input[type="email"]');
+          const button = form.querySelector("button");
+          const label = button.querySelector(".btn-label");
+          const email = input.value.trim();
           if (!email) return;
 
-          const btn = form.querySelector("button");
-          btn.querySelector(".btn-label").textContent = "Added ✓";
-          btn.disabled = true;
-          note.textContent = `We'll email ${email} the moment the extension is ready.`;
-          form.querySelector("input").disabled = true;
+          button.disabled = true;
+          label.textContent = "Adding…";
+          note.textContent = "Saving your spot…";
+
+          try {
+            const response = await fetch("/api/waitlist", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+              throw new Error(result.error || "Unable to join the waitlist.");
+            }
+
+            label.textContent = "Added ✓";
+            note.textContent = `We'll email ${email} the moment the extension is ready.`;
+            input.disabled = true;
+          } catch (error) {
+            button.disabled = false;
+            label.textContent = "Request access";
+            note.textContent = error.message;
+          }
         });
       }
     </script>
