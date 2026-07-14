@@ -695,9 +695,178 @@
         margin-top: 1rem;
       }
 
+      /* ---------- Submission alert ---------- */
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      .submit-alert {
+        position: fixed;
+        inset: 0;
+        z-index: 260;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem 6vw;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.22s var(--ease-out);
+      }
+      .submit-alert.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .submit-alert-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(6, 8, 12, 0.78);
+        backdrop-filter: blur(14px);
+      }
+      .submit-alert-card {
+        position: relative;
+        width: min(100%, 560px);
+        background:
+          radial-gradient(
+            circle at top left,
+            rgba(199, 125, 255, 0.16),
+            transparent 42%
+          ),
+          radial-gradient(
+            circle at top right,
+            rgba(90, 169, 230, 0.14),
+            transparent 34%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(22, 26, 34, 0.98),
+            rgba(12, 14, 19, 0.98)
+          );
+        border: 1px solid var(--border-strong);
+        border-radius: 18px;
+        box-shadow: 0 30px 90px -40px rgba(0, 0, 0, 0.9);
+        overflow: hidden;
+        transform: translateY(14px) scale(0.98);
+        opacity: 0;
+        transition:
+          opacity 0.28s var(--ease-out),
+          transform 0.28s var(--ease-out);
+      }
+      .submit-alert.open .submit-alert-card {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+      .submit-alert-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+        pointer-events: none;
+      }
+      .submit-alert-inner {
+        position: relative;
+        padding: 1.35rem 1.35rem 1.25rem;
+      }
+      .submit-alert-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
+      }
+      .submit-alert-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .submit-alert-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        box-shadow: 0 0 0 4px rgba(110, 231, 168, 0.12);
+      }
+      .submit-alert-status.error .submit-alert-status-dot {
+        background: var(--theirs);
+        box-shadow: 0 0 0 4px rgba(240, 168, 87, 0.12);
+      }
+      .submit-alert-close {
+        width: 2.1rem;
+        height: 2.1rem;
+        padding: 0;
+        border-radius: 999px;
+        border: 1px solid var(--border-strong);
+        background: rgba(255, 255, 255, 0.02);
+        color: var(--text-dim);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          border-color 0.25s var(--ease-out),
+          color 0.25s var(--ease-out),
+          background 0.25s var(--ease-out),
+          transform 0.25s var(--ease-out);
+      }
+      .submit-alert-close:hover {
+        border-color: var(--resolved);
+        color: var(--text);
+        background: var(--resolved-dim);
+        transform: rotate(6deg);
+      }
+      .submit-alert-close:focus-visible {
+        outline: 2px solid var(--resolved);
+        outline-offset: 2px;
+      }
+      .submit-alert h3 {
+        margin-bottom: 0.7rem;
+        font-size: 1.45rem;
+      }
+      .submit-alert p {
+        color: var(--text-dim);
+      }
+      .submit-alert-message {
+        margin-bottom: 1.15rem;
+      }
+      .submit-alert-panel {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+        padding: 1rem 1rem 0.9rem;
+      }
+      .submit-alert-line {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.65rem;
+        color: var(--text-dim);
+        font-size: 0.9rem;
+      }
+      .submit-alert-line + .submit-alert-line {
+        margin-top: 0.7rem;
+      }
+      .submit-alert-mark {
+        color: var(--resolved);
+        font-family: var(--font-mono);
+        flex-shrink: 0;
+      }
+      .submit-alert-mark.error {
+        color: var(--theirs);
+      }
+      .submit-alert-actions {
+        display: flex;
+        gap: 0.8rem;
+        flex-wrap: wrap;
+        margin-top: 1.25rem;
+      }
+
       @media (max-width: 540px) {
         .waitlist-form {
           flex-direction: column;
+        }
+
+        .submit-alert-inner {
+          padding: 1.15rem 1rem 1rem;
         }
       }
 
@@ -1030,7 +1199,17 @@
             campaign, one email.
           </p>
 
-          <form class="waitlist-form" id="waitlistForm">
+          <form
+            class="waitlist-form"
+            id="waitlistForm"
+            name="waitlist"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            action="/"
+          >
+            <input type="hidden" name="form-name" value="waitlist" />
+            <input type="hidden" name="bot-field" value="" />
             <input
               type="email"
               name="email"
@@ -1043,11 +1222,70 @@
             </button>
           </form>
           <p class="waitlist-note" id="waitlistNote">
-            We'll only use this to tell you when it ships.
+            We will never share your email. The email you provide is used only
+            to notify you when the VS Code extension is ready for early access.
           </p>
         </div>
       </section>
     </main>
+
+    <div class="submit-alert" id="submitAlert" aria-hidden="true" hidden>
+      <div class="submit-alert-backdrop" data-alert-close></div>
+      <div
+        class="submit-alert-card"
+        id="submitAlertCard"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="submitAlertTitle"
+        aria-describedby="submitAlertMessage"
+        tabindex="-1"
+      >
+        <div class="submit-alert-inner">
+          <div class="submit-alert-top">
+            <span class="submit-alert-status" id="submitAlertStatus">
+              <span class="submit-alert-status-dot"></span>
+              <span id="submitAlertStatusText">submission received</span>
+            </span>
+            <button
+              class="submit-alert-close"
+              type="button"
+              aria-label="Close message"
+              data-alert-close
+            >
+              ✕
+            </button>
+          </div>
+
+          <h3 id="submitAlertTitle">You're on the list.</h3>
+          <p class="submit-alert-message" id="submitAlertMessage">
+            We captured your email through Netlify Forms and will use it only
+            for the early access update.
+          </p>
+
+          <div class="submit-alert-panel">
+            <p class="submit-alert-line">
+              <span class="submit-alert-mark">></span>
+              <span id="submitAlertDetail"
+                >Your spot is saved. No database, no drip campaign, one email
+                when it ships.</span
+              >
+            </p>
+            <p class="submit-alert-line">
+              <span class="submit-alert-mark">></span>
+              <span id="submitAlertSecondary"
+                >Keep an eye on your inbox for the first install link.</span
+              >
+            </p>
+          </div>
+
+          <div class="submit-alert-actions">
+            <button class="btn btn-primary" type="button" data-alert-close>
+              Back to page
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer class="footer">
       <div class="footer-inner">
@@ -1078,6 +1316,7 @@
         initNavScroll();
         initMobileNav();
         initMergeDemo();
+        initSubmissionAlert();
         initWaitlistForm();
       });
 
@@ -1232,43 +1471,147 @@
         observer.observe(document.getElementById("demo"));
       }
 
+      /* ---------- Submission alert ---------- */
+      function initSubmissionAlert() {
+        const alertShell = document.getElementById("submitAlert");
+        const alertCard = document.getElementById("submitAlertCard");
+        if (!alertShell || !alertCard) return;
+
+        const titleEl = document.getElementById("submitAlertTitle");
+        const messageEl = document.getElementById("submitAlertMessage");
+        const detailEl = document.getElementById("submitAlertDetail");
+        const secondaryEl = document.getElementById("submitAlertSecondary");
+        const statusEl = document.getElementById("submitAlertStatus");
+        const statusTextEl = document.getElementById("submitAlertStatusText");
+        const focusableSelector =
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+        let lastFocus = null;
+
+        function openAlert(state, content) {
+          lastFocus = document.activeElement;
+
+          titleEl.textContent = content.title;
+          messageEl.textContent = content.message;
+          detailEl.textContent = content.detail;
+          secondaryEl.textContent = content.secondary;
+          statusTextEl.textContent = content.statusLabel;
+          statusEl.classList.toggle("error", state === "error");
+
+          alertShell.hidden = false;
+          requestAnimationFrame(() => alertShell.classList.add("open"));
+          document.body.classList.add("modal-open");
+          alertCard.focus();
+        }
+
+        function closeAlert() {
+          alertShell.classList.remove("open");
+          document.body.classList.remove("modal-open");
+          window.setTimeout(() => {
+            alertShell.hidden = true;
+          }, 240);
+
+          if (lastFocus && typeof lastFocus.focus === "function") {
+            lastFocus.focus();
+          }
+        }
+
+        window.openWaitlistAlert = openAlert;
+        window.closeWaitlistAlert = closeAlert;
+
+        alertShell.addEventListener("click", (event) => {
+          if (event.target && event.target.hasAttribute("data-alert-close")) {
+            closeAlert();
+          }
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (alertShell.hidden) return;
+
+          if (event.key === "Escape") {
+            closeAlert();
+            return;
+          }
+
+          if (event.key !== "Tab") return;
+
+          const focusable = alertCard.querySelectorAll(focusableSelector);
+          if (!focusable.length) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        });
+      }
+
       /* ---------- Waitlist form ---------- */
       function initWaitlistForm() {
         const form = document.getElementById("waitlistForm");
         const note = document.getElementById("waitlistNote");
-        if (!form) return;
+        if (!form || typeof window.openWaitlistAlert !== "function") return;
 
         form.addEventListener("submit", async (event) => {
           event.preventDefault();
           const input = form.querySelector('input[type="email"]');
           const button = form.querySelector("button");
-          const label = button.querySelector(".btn-label");
+          const label = button?.querySelector(".btn-label");
           const email = input.value.trim();
           if (!email) return;
 
+          const formData = new FormData(form);
+          if (formData.get("bot-field")) return;
+
+          formData.set("form-name", "waitlist");
+
           button.disabled = true;
           label.textContent = "Adding…";
-          note.textContent = "Saving your spot…";
+          note.textContent = "Sending through Netlify Forms…";
 
           try {
-            const response = await fetch("/api/waitlist", {
+            const response = await fetch("/", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email }),
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams(formData).toString(),
             });
-            const result = await response.json();
 
             if (!response.ok) {
-              throw new Error(result.error || "Unable to join the waitlist.");
+              throw new Error(
+                "We couldn't submit the form right now. Please try again.",
+              );
             }
 
             label.textContent = "Added ✓";
-            note.textContent = `We'll email ${email} the moment the extension is ready.`;
+            note.textContent = "Captured through Netlify Forms.";
             input.disabled = true;
+            window.openWaitlistAlert("success", {
+              title: "You're on the list.",
+              message: `Netlify Forms captured ${email} for early access.`,
+              detail:
+                "Your spot is saved. No database, no drip campaign, one email when it ships.",
+              secondary:
+                "Keep an eye on your inbox for the first install link.",
+              statusLabel: "submission received",
+            });
           } catch (error) {
             button.disabled = false;
             label.textContent = "Request access";
             note.textContent = error.message;
+            window.openWaitlistAlert("error", {
+              title: "Submission needs another pass.",
+              message:
+                "Netlify Forms only processes this on a Netlify deployment.",
+              detail:
+                "If you're previewing locally, deploy the site or use Netlify's form handling in production.",
+              secondary: error.message,
+              statusLabel: "submission failed",
+            });
           }
         });
       }
